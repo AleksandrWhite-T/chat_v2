@@ -44,6 +44,7 @@ function ChatApp() {
     if (isAuthenticated && user && token) {
       const connectUser = async () => {
         try {
+          // Attach public key to user object if E2E is enabled
           const usr = e2eEnabled && publicKey ? { ...user, public_key: publicKey } : user;
           
           await chatClient.connectUser(usr, token);
@@ -78,6 +79,7 @@ function ChatApp() {
 
   const handleChannelSelect = (ch) => {
     setChannel(ch);
+    // Extract DM partner info for UI display
     if (ch.data?.is_dm) {
       const otherId = ch.state.members ? 
         Object.keys(ch.state.members).find(id => id !== user.id) : null;

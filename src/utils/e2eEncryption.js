@@ -6,6 +6,7 @@ export class E2EEncryption {
   }
 
   async generateKeyPair() {
+    // P-256 is faster than P-521 and sufficient for our use case
     const kp = await crypto.subtle.generateKey(
       { name: 'ECDH', namedCurve: 'P-256' },
       true,
@@ -79,6 +80,7 @@ export class E2EEncryption {
   }
 
   async getSharedKey(userId, ourPrivateKey, theirPublicKeyJwk) {
+    // Cache shared keys to avoid repeated ECDH operations
     if (this.sharedKeys.has(userId)) {
       const known = this.publicKeys.get(userId);
       if (known && known === theirPublicKeyJwk) {
@@ -115,6 +117,7 @@ export class E2EEncryption {
   }
 
   async generateKeyFingerprint(publicKeyJwk) {
+    // Short fingerprint for user verification - first 16 hex chars is enough
     const keyBuf = new TextEncoder().encode(publicKeyJwk);
     const hashBuf = await crypto.subtle.digest('SHA-256', keyBuf);
     const hashArr = new Uint8Array(hashBuf);

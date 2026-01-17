@@ -12,6 +12,7 @@ class ContractEventListener {
     if (this.isListening) return;
 
     try {
+      // Use read-only contract to listen for events without wallet
       const contract = await createReadOnlyContract();
       this.contract = contract;
       this.startListening();
@@ -59,6 +60,7 @@ class ContractEventListener {
   }
 
   watchForHash(messageId, expectedHash, callback, timeoutMs = 60000) {
+    // Check cache first for instant verification
     if (this.verifiedHashes.has(expectedHash)) {
       const verificationData = this.verifiedHashes.get(expectedHash);
       callback({ verified: true, data: verificationData });

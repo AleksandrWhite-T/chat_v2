@@ -27,6 +27,7 @@ function EncryptedMessageInput({ channel, ...props }) {
     setIsEncrypting(true);
 
     try {
+      // Encrypt before sending, fallback to plaintext if encryption fails
       let processedMessage = await encryptMessageForChannel(message.text, channel);
       
       const msgData = {};
@@ -59,6 +60,7 @@ function EncryptedMessageInput({ channel, ...props }) {
     try {
       setIsSendingHash(true);
       
+      // Find the other person in DM - TODO: optimize this lookup
       const members = channel.state.members || {};
       const memberIds = Object.keys(members);
       let otherUserId = null;
@@ -87,6 +89,7 @@ function EncryptedMessageInput({ channel, ...props }) {
       
       let messageHash = calculateMessageHash(originalText);
       
+      // Fire and forget - don't block message send on blockchain write
       logMessageHashToContract(recipientAddress, messageHash)
         .then(result => {
           showHashVerificationNotification('sender', originalText, messageHash, result.transactionHash);

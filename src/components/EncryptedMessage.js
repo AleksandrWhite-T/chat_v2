@@ -104,6 +104,7 @@ function EncryptedMessage(props) {
     setDecryptionError(null);
 
     try {
+      // Key rotation detection - warn if sender changed their key (possible MITM)
       const changed = e2eEncryption.isPublicKeyChanged(message.user.id, message.sender_public_key);
       if (changed) {
         setKeyChanged(true);
@@ -131,6 +132,7 @@ function EncryptedMessage(props) {
       setDecryptedText(decrypted);
       setIsEncrypted(true);
       
+      // Slight delay to avoid race condition with message render
       if (message.user?.wallet_address && user?.auth_type === 'metamask') {
         setTimeout(() => verifyHashWithText(decrypted), 100);
       }
@@ -239,11 +241,11 @@ export function useMessageEncryption() {
 
   const encryptMessageForChannel = async (messageText, channel) => {
     if (!e2eEnabled || !e2eInitialized || !messageText || !user) {
-      return { text: messageText }; // Return unencrypted
+      return { text: messageText };
     }
 
     try {
-      // For DM channels, encrypt with the other user's key
+      // Only DMs are encrypted - group channels would need different key distribution
       if (channel.data?.is_dm) {
         const otherUserId = Object.keys(channel.state.members || {})
           .find(id => id !== user.id);

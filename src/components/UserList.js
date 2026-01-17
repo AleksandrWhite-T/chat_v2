@@ -16,6 +16,7 @@ function UserList({ chatClient, onStartDM, currentChannel }) {
       try {
         setLoading(true);
         
+        // Exclude self, sort by activity
         const response = await chatClient.queryUsers(
           { 
             id: { $ne: currentUser.id }
@@ -36,11 +37,13 @@ function UserList({ chatClient, onStartDM, currentChannel }) {
 
     fetchUsers();
 
+    // Refresh user list every 30s to update online status
     const interval = setInterval(fetchUsers, 30000);
     return () => clearInterval(interval);
   }, [chatClient, currentUser]);
 
   const createDMChannelId = (user1Id, user2Id) => {
+    // Deterministic channel ID so same DM always has same channel
     const sortedIds = [user1Id, user2Id].sort();
     const combined = sortedIds.join('|');
     const hash = CryptoJS.SHA256(combined).toString();

@@ -18,6 +18,7 @@ function E2ESettings({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   const copyToClipboard = (text) => {
+    // Clipboard API might fail in some browsers or contexts
     navigator.clipboard.writeText(text).then(() => {
       alert('Copied to clipboard!');
     }).catch(() => {
@@ -83,7 +84,7 @@ function E2ESettings({ isOpen, onClose }) {
             <h3>How it works</h3>
             <div className="auto-enable-notice">
               <span className="info-icon">i</span>
-              <strong>E2E encryption is always enabled</strong> when supported by your browser. All messages are encrypted and message hashes are logged to blockchain for verification.
+              <strong>E2E encryption is always enabled</strong> when supported by your browser. Keys never leave your device.
             </div>
             <div className="security-explanation">
               <div className="explanation-item">

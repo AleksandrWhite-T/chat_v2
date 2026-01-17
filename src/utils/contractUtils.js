@@ -664,6 +664,7 @@ export const CONTRACT_CONFIG = {
 
 export async function createReadOnlyContract() {
   try {
+    // Try Metamask first if available
     if (window.ethereum) {
       try {
         const provider = new ethers.BrowserProvider(window.ethereum);
@@ -674,6 +675,7 @@ export async function createReadOnlyContract() {
       }
     }
     
+    // Fallback to public RPC nodes
     const rpcUrls = [
       'https://polygon-rpc.com', // Polygon mainnet (priority)
       'https://rpc-mainnet.matic.network', // Polygon mainnet (alternative)
@@ -686,6 +688,7 @@ export async function createReadOnlyContract() {
       'https://mainnet.optimism.io' // Optimism
     ];
     
+    // Try each RPC until one works - some might be rate limited
     for (const rpcUrl of rpcUrls) {
       try {
         const provider = new ethers.JsonRpcProvider(rpcUrl);
@@ -751,6 +754,7 @@ export async function checkWhitelist(address) {
     let provider;
     let networkInfo = null;
     
+    // Prefer Metamask provider if connected to correct network
     if (window.ethereum) {
       try {
         provider = new ethers.BrowserProvider(window.ethereum);
@@ -810,6 +814,7 @@ export async function checkWhitelist(address) {
       }
     }
 
+    // 15s timeout because some RPC nodes are slow
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error('Timeout: exceeded waiting time for contract response')), 15000);
     });
@@ -1055,6 +1060,7 @@ export async function verifyMessageHash(content, senderAddress, timestamp) {
       const writableContract = await createWritableContract();
       const receivedMessages = await writableContract.getReceivedMessages();
       
+      // Allow 5min timestamp drift for blockchain delays
       const matchingMessage = receivedMessages.find(msg => {
         const msgTimestamp = Number(msg.timestamp);
         const timeDiff = Math.abs(msgTimestamp - Math.floor(timestamp / 1000));

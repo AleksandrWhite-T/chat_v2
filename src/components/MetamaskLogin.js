@@ -25,6 +25,7 @@ function MetamaskLogin() {
             const acc = accs[0];
             setAccount(acc);
             
+            // Signatures expire after 24h to balance security vs UX
             const storageKey = 'metamask_auth_' + acc.toLowerCase();
             const stored = localStorage.getItem(storageKey);
             if (stored) {
@@ -46,8 +47,7 @@ function MetamaskLogin() {
     if (!account || !hasStoredAuth) return;
 
     setIsLoading(true);
-    setError('');
-    setIsWhitelistError(false);
+    setError(''); setIsWhitelistError(false);
 
     const storageKey = 'metamask_auth_' + account.toLowerCase();
     const stored = localStorage.getItem(storageKey);
@@ -128,6 +128,7 @@ function MetamaskLogin() {
       }
     } catch (err) {
       console.error('metamask error:', err);
+      // 4001 = user clicked "reject" in metamask popup
       const code = err.code;
       if (code === 4001) {
         setError('User rejected request');
@@ -146,6 +147,7 @@ function MetamaskLogin() {
     setError('');
     setIsWhitelistError(false);
 
+    // TODO: remove test users before production deploy
     const result = await login(userName, userId);
     
     if (!result.success) {

@@ -28,6 +28,7 @@ export function AuthProvider({ children }) {
     if (!e2eSupported) return false;
 
     try {
+      // Generate key pair in browser, never sent to server
       const { publicKeyJwk } = await e2eEncryption.initializeForUser(userId);
       const fp = await e2eEncryption.generateKeyFingerprint(publicKeyJwk);
       
@@ -67,11 +68,13 @@ export function AuthProvider({ children }) {
 
   const loginWithMetamask = async (account, signature, message) => {
     try {
+      // Verify signature matches claimed account
       const recovered = ethers.verifyMessage(message, signature);
       if (recovered.toLowerCase() !== account.toLowerCase()) {
         throw new Error('Signature verification failed');
       }
 
+      // Check contract whitelist and token balance
       let whitelisted = false;
       try {
         whitelisted = await checkWhitelist(account);
@@ -132,8 +135,7 @@ export function AuthProvider({ children }) {
     setUser(null);
     setToken(null);
     setIsAuthenticated(false);
-    setE2eEnabled(false);
-    setE2eInitialized(false);
+    setE2eEnabled(false); setE2eInitialized(false);
     setPublicKey(null);
     setKeyFingerprint(null);
     e2eEncryption.clearKeys();

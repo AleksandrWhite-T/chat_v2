@@ -19,13 +19,11 @@ function VerifiedMessage(props) {
   }
 
   useEffect(() => {
-    // Cleanup previous listener
     if (cleanupRef.current) {
       cleanupRef.current();
       cleanupRef.current = null;
     }
 
-    // Reset verification state for new message
     setIsHashVerified(false);
     setIsVerifyingHash(false);
     setVerificationData(null);
@@ -55,6 +53,7 @@ function VerifiedMessage(props) {
 
       const expectedHash = calculateMessageHash(messageText);
 
+      // Check cache first to avoid waiting for blockchain event
       const existingVerification = contractEventListener.getVerificationStatus(expectedHash);
       if (existingVerification) {
         setIsHashVerified(true);
@@ -64,6 +63,7 @@ function VerifiedMessage(props) {
 
       setIsWaitingForBlockchain(true);
 
+      // Wait up to 60s for blockchain confirmation
       cleanupRef.current = contractEventListener.watchForHash(
         message.id, 
         expectedHash, 

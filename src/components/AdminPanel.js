@@ -73,6 +73,7 @@ function AdminPanel() {
 
     try {
       setOperationLoading(true);
+      // Transaction will prompt Metamask - user might need to wait
       const result = await addToWhitelist(addressToAdd.trim());
       
       if (result.success) {
@@ -144,6 +145,7 @@ function AdminPanel() {
 
     try {
       setOperationLoading(true);
+      // Minting costs gas - make sure owner has enough ETH
       const result = await mintTokens(mintAddress.trim(), mintAmount);
       
       if (result.success) {
